@@ -1,51 +1,43 @@
-import React from 'react';
-import { StyleSheet, Text, View, ActivityIndicator } from 'react-native';
-import {Button} from 'react-native-elements';
+import React, {
+  useState,
+  useEffect
+} from 'react';
+import { FlatList,StyleSheet, Text, View} from 'react-native';
 
-export default class App extends React.Component {
-  constructor(props){
-    super(props);
-    this.state = {
-      isLoading: true,
-      dataSource: null,
-    }
+
+ export default class App extends React.Component {
+  
+    state = {
+      data: []
   }
-  componentDidMount () {
+ async componentDidMount () {
+      const res = await fetch('https://thawing-hollows-21222.herokuapp.com/artists');
+   const json = await res.json();
+   this.setState({
+     isLoaded: true,
+     items: json.artists,
+   });
+    };
 
-    return fetch('https://thawing-hollows-21222.herokuapp.com/artists.json')
-      .then( (response) => response.json() )
-      .then( (responseJson) => {
-        this.setState({
-          isLoading: false,
-          dataSource: responseJson.artists,
-        })
-      })
-
-      .catch((error) => {
-        console.log(error)
-      });
-    }
-
-render() {
-  if(this.state.isLoading) {
-    return (
-      <View style={styles.container}>
-        <ActivityIndicator />
-      </View>
-    )
-  } else {
-    return (
-      <View style={styles.container}>
-        <Text>Content Loaded</Text>
-      </View>
-    )
-
+    render() {
+  var { isLoaded, items } = this.state;
+  if(!isLoaded){
+    return (<Text>Loading...</Text>);
   }
+  else{
   return (
     <View style={styles.container}>
-      <Text>Welcome to MUSICFEST  app!</Text>
+      <FlatList 
+      items={this.state.items}
+      keyExtractor={(x,i) => i}
+      renderItem={({ item }) =>
+        <Text>
+          {'${item.id} || ${item.name}'}
+        </Text>}
+        />
     </View>
   );
+}
 }
 }
 
