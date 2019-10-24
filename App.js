@@ -1,51 +1,59 @@
 import React, {
   useState,
-  useEffect
+  useEffect,
 } from 'react';
-import { FlatList,StyleSheet, Text, View} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+} from 'react-native';
 
-
- export default class App extends React.Component {
+const ArtistsScreen = (props) => {
   
-    state = {
-      data: []
-  }
- async componentDidMount () {
-      const res = await fetch('https://thawing-hollows-21222.herokuapp.com/artists');
-   const json = await res.json();
-   this.setState({
-     isLoaded: true,
-     items: json.artists,
-   });
-    };
+  const [ dataLoaded, isLoaded ] = useState(false);
+  const [ artists, setArtists ] = useState([]);
+  
+  useEffect(() => {
+    if (!dataLoaded) {
+      fetch('https://thawing-hollows-21222.herokuapp.com/artists')
+        .then(res => res.json())
+        .then(({ data }) => {
+          setArtists(data);
+          isLoaded(true);
+        });
+    }
+  });
 
-    render() {
-  var { isLoaded, items } = this.state;
-  if(!isLoaded){
-    return (<Text>Loading...</Text>);
+  const keyExtractor = (item) => {
+    return `${ item.id }`;
   }
-  else{
+
   return (
-    <View style={styles.container}>
-      <FlatList 
-      items={this.state.items}
-      keyExtractor={(x,i) => i}
-      renderItem={({ item }) =>
-        <Text>
-          {'${item.id} || ${item.name}'}
-        </Text>}
-        />
-    </View>
+    <FlatList
+      data={ artists }
+      keyExtractor={ keyExtractor }
+      renderItem={({ item }) => {
+        return (
+          <View style={styles.container}> 
+          <Text>Name</Text>
+            <Text>{ item.name  }</Text>
+          </View>
+        );
+      }}
+    />
   );
-}
-}
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#fff',
+    flex: 10,
+    backgroundColor: '#000',
+    textDecorationColor:'#ffc0cb',
     alignItems: 'center',
     justifyContent: 'center',
-  },
+    textAlign: "center",
+    marginRight:3,
+    marginBottom:6,
+    },
 });
